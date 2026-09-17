@@ -9,10 +9,20 @@
 
 #include "FileUtils.h"
 #include "Logger.h"
+#include "StreamUtils.h"
 
 #include <cctype>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
+
+#if !(defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#endif
 
 #include <kodi/Filesystem.h>
 #include <kodi/tools/StringUtils.h>
@@ -141,7 +151,8 @@ std::string WebUtils::RedactUrl(const std::string& url)
   return redactedUrl;
 }
 
-bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool isLocalPath)
+bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool isLocalPath,
+                     const std::string& uplinkSpec)
 {
   // For local paths we only need to check existence of the file
   if ((isLocalPath || IsSpecialUrl(strURL)) && FileUtils::FileExists(strURL))
@@ -157,6 +168,13 @@ bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool 
 
   if (!IsNfsUrl(strURL))
     fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", std::to_string(connectionTimeoutSecs));
+
+  if (!uplinkSpec.empty() && IsHttpUrl(strURL))
+  {
+    const std::string address = ResolveLocalAddress(uplinkSpec);
+    if (!address.empty())
+      fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "local_addr", address);
+  }
 
   if (!fileHandle.CURLOpen(ADDON_READ_NO_CACHE))
   {
@@ -188,4 +206,84 @@ std::map<std::string, std::string> WebUtils::ConvertStringToHeaders(const std::s
   }
 
   return result;
+}
+
+std::string WebUtils::ResolveLocalAddress(const std::string& spec)
+{
+  if (spec.empty())
+    return {};
+
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+  return spec;
+#else
+  const size_t slash = spec.find('/');
+  in_addr network = {};
+  in_addr_t mask = 0;
+
+  if (slash == std::string::npos)
+  {
+    in_addr literal = {};
+    if (inet_pton(AF_INET, spec.c_str(), &literal) == 1)
+      return spec;
+  }
+  else
+  {
+    const int bits = std::atoi(spec.substr(slash + 1).c_str());
+
+    if (bits < 0 || bits > 32 ||
+        inet_pton(AF_INET, spec.substr(0, slash).c_str(), &network) != 1)
+      return {};
+
+    mask = bits == 0 ? 0 : htonl(~((1u << (32 - bits)) - 1));
+  }
+
+  ifaddrs* interfaces = nullptr;
+  if (getifaddrs(&interfaces) != 0)
+    return {};
+
+  std::string address;
+  for (ifaddrs* interface = interfaces; interface && address.empty();
+       interface = interface->ifa_next)
+  {
+    if (!interface->ifa_addr || interface->ifa_addr->sa_family != AF_INET ||
+        !(interface->ifa_flags & IFF_UP))
+      continue;
+
+    const in_addr& candidate =
+        reinterpret_cast<sockaddr_in*>(interface->ifa_addr)->sin_addr;
+
+    if (slash == std::string::npos)
+    {
+      if (spec != interface->ifa_name)
+        continue;
+    }
+    else if ((candidate.s_addr & mask) != (network.s_addr & mask))
+    {
+      continue;
+    }
+
+    char text[INET_ADDRSTRLEN] = {};
+    if (inet_ntop(AF_INET, &candidate, text, sizeof(text)))
+      address = text;
+  }
+
+  freeifaddrs(interfaces);
+
+  if (address.empty())
+    Logger::Log(LEVEL_ERROR, "%s - no local address matches '%s'", __FUNCTION__, spec.c_str());
+
+  return address;
+#endif
+}
+
+std::string WebUtils::AddLocalAddressToUrl(const std::string& url, const std::string& spec)
+{
+  if (spec.empty() || !IsHttpUrl(url))
+    return url;
+
+  const std::string address = ResolveLocalAddress(spec);
+  if (address.empty())
+    return url;
+
+  return StreamUtils::AddHeaderToStreamUrl(url, "local_addr", address);
 }

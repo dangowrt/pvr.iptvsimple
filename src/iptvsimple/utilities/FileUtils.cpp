@@ -8,6 +8,7 @@
 #include "FileUtils.h"
 
 #include "../InstanceSettings.h"
+#include "WebUtils.h"
 
 #include <lzma.h>
 #include <zlib.h>
@@ -194,7 +195,8 @@ int FileUtils::GetCachedFileContents(std::shared_ptr<iptvsimple::InstanceSetting
 
   if (needReload)
   {
-    FileUtils::GetFileContents(filePath, contents);
+    FileUtils::GetFileContents(
+        WebUtils::AddLocalAddressToUrl(filePath, settings->GetUplinkAddress()), contents);
 
     // write to cache
     if (useCache && contents.length() > 0)

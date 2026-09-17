@@ -32,8 +32,11 @@ namespace iptvsimple
       static bool IsNfsUrl(const std::string& url);
       static bool IsSpecialUrl(const std::string& url);
       static std::string RedactUrl(const std::string& url);
-      static bool Check(const std::string& url, int connectionTimeoutSecs, bool isLocalPath = false);
+      static bool Check(const std::string& url, int connectionTimeoutSecs, bool isLocalPath = false,
+                        const std::string& uplinkSpec = {});
       static std::map<std::string, std::string> ConvertStringToHeaders(const std::string& input);
+      static std::string ResolveLocalAddress(const std::string& spec);
+      static std::string AddLocalAddressToUrl(const std::string& url, const std::string& spec);
     };
   } // namespace utilities
 } // namespace iptvsimple

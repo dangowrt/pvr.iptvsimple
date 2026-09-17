@@ -152,7 +152,8 @@ void ConnectionManager::Process()
     }
 
     /* Connect */
-    if ((firstRun || !m_onStartupOnly) && !WebUtils::Check(url, tcpTimeout, isLocalPath))
+    if ((firstRun || !m_onStartupOnly) &&
+        !WebUtils::Check(url, tcpTimeout, isLocalPath, m_settings->GetUplinkAddress()))
     {
       /* Unable to connect */
       if (retryAttempt == 0)

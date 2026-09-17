@@ -913,6 +913,14 @@
         </setting>
       </group>
       <group id="3" label="30071">
+        <setting id="uplinkAddress" type="string" label="30081" help="30689">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
         <setting id="defaultUserAgent" type="string" label="30068" help="30686">
           <level>3</level>
           <default></default>

@@ -198,6 +198,8 @@ void Channel::SetStreamURL(const std::string& url)
 
     TryToAddPropertyAsHeader("http-user-agent", "user-agent");
     TryToAddPropertyAsHeader("http-referrer", "referer"); // spelling differences are correct
+
+    m_streamURL = WebUtils::AddLocalAddressToUrl(m_streamURL, m_settings->GetUplinkAddress());
   }
 
   if (m_settings->TransformMulticastStreamUrls() &&

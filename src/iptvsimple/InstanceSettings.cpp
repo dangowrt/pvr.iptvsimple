@@ -153,6 +153,7 @@ void InstanceSettings::ReadSettings()
   m_instance.CheckInstanceSettingInt("udpxyPort", m_udpxyPort);
   m_instance.CheckInstanceSettingBoolean("useFFmpegReconnect", m_useFFmpegReconnect);
   m_instance.CheckInstanceSettingBoolean("useInputstreamAdaptiveforHls", m_useInputstreamAdaptiveforHls);
+  m_instance.CheckInstanceSettingString("uplinkAddress", m_uplinkAddress);
   m_instance.CheckInstanceSettingString("defaultUserAgent", m_defaultUserAgent);
   m_instance.CheckInstanceSettingString("defaultInputstream", m_defaultInputstream);
   m_instance.CheckInstanceSettingString("defaultMimeType", m_defaultMimeType);
@@ -336,6 +337,8 @@ ADDON_STATUS InstanceSettings::SetSetting(const std::string& settingName, const 
     return SetSetting<bool, ADDON_STATUS>(settingName, settingValue, m_useFFmpegReconnect, ADDON_STATUS_OK, ADDON_STATUS_OK);
   else if (settingName == "useInputstreamAdaptiveforHls")
     return SetSetting<bool, ADDON_STATUS>(settingName, settingValue, m_useInputstreamAdaptiveforHls, ADDON_STATUS_OK, ADDON_STATUS_OK);
+  if (settingName == "uplinkAddress")
+    return SetStringSetting<ADDON_STATUS>(settingName, settingValue, m_uplinkAddress, ADDON_STATUS_OK, ADDON_STATUS_OK);
   if (settingName == "defaultUserAgent")
     return SetStringSetting<ADDON_STATUS>(settingName, settingValue, m_defaultUserAgent, ADDON_STATUS_OK, ADDON_STATUS_OK);
   if (settingName == "defaultInputstream")

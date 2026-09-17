@@ -175,6 +175,7 @@ namespace iptvsimple
     int GetUdpxyPort() const { return m_udpxyPort; }
     bool UseFFmpegReconnect() const { return m_useFFmpegReconnect; }
     bool UseInputstreamAdaptiveforHls() const { return m_useInputstreamAdaptiveforHls; }
+    const std::string& GetUplinkAddress() const { return m_uplinkAddress; }
     const std::string& GetDefaultUserAgent() const { return m_defaultUserAgent; }
     const std::string& GetDefaultInputstream() const { return m_defaultInputstream; }
     const std::string& GetDefaultMimeType() const { return m_defaultMimeType; }
@@ -339,6 +340,7 @@ namespace iptvsimple
     int m_udpxyPort = DEFAULT_UDPXY_MULTICAST_RELAY_PORT;
     bool m_useFFmpegReconnect = true;
     bool m_useInputstreamAdaptiveforHls = false;
+    std::string m_uplinkAddress;
     std::string m_defaultUserAgent;
     std::string m_defaultInputstream;
     std::string m_defaultMimeType;

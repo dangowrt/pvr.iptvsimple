@@ -449,7 +449,12 @@ msgctxt "#30080"
 msgid "Interval for check"
 msgstr ""
 
-#empty strings from id 30081 to 30099
+#. label: Advanced - uplinkAddress
+msgctxt "#30081"
+msgid "Uplink source address"
+msgstr ""
+
+#empty strings from id 30082 to 30099
 
 #. label-category: catchup
 #. label-group: Catchup - Catchup
@@ -965,7 +970,12 @@ msgctxt "#30688"
 msgid "Use this MIME type as the default if there is not one supplied as a property (KODIPROP) of the channel. Use with care as this will disable any use of the addon's default stream inspection behaviour."
 msgstr ""
 
-#empty strings from id 30689 to 30699
+#. help: Advanced - uplinkAddress
+msgctxt "#30689"
+msgid "Leave every request of this provider through a chosen uplink, by binding it to a local source address. Give an address, a subnet such as `192.168.5.0/24`, or an interface name; a subnet or an interface name is resolved each time, so it survives a new DHCP lease. Applies to all channels of this provider, to its playlist and EPG downloads, and to the connection check that decides whether the provider is usable at all. Empty means the system default route."
+msgstr ""
+
+#empty strings from id 30690 to 30699
 
 #. help info - Catchup
 
