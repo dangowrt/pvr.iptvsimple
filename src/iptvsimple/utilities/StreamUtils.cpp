@@ -32,8 +32,23 @@ bool SplitUrlProtocolOpts(const std::string& streamURL,
   {
       // Headers found, split and url-encode them
       url = streamURL.substr(0, found);
-      const std::string& protocolOptions = streamURL.substr(found + 1, streamURL.length());
-      encodedProtocolOptions = StreamUtils::GetUrlEncodedProtocolOptions(protocolOptions);
+      std::string protocolOptions = streamURL.substr(found + 1, streamURL.length());
+
+      // local_addr is for ffmpeg, not a header: it travels as a property
+      std::string kept;
+      for (const auto& option : kodi::tools::StringUtils::Split(protocolOptions, "&"))
+      {
+        if (kodi::tools::StringUtils::StartsWith(option, "local_addr="))
+          continue;
+        if (!kept.empty())
+          kept += "&";
+        kept += option;
+      }
+
+      if (kept.empty())
+        return false;
+
+      encodedProtocolOptions = StreamUtils::GetUrlEncodedProtocolOptions(kept);
       return true;
   }
   return false;
@@ -127,6 +142,13 @@ void StreamUtils::SetAllStreamProperties(std::vector<kodi::addon::PVRStreamPrope
       CheckInputstreamInstalledAndEnabled(INPUTSTREAM_ADAPTIVE);
 
       bool streamUrlSet = false;
+
+      // inputstream.adaptive fetches the segments itself, so the uplink has to
+      // reach it as a property; on the stream URL it would cover the manifest
+      // only, and be sent as a header on top of that
+      if (!settings->GetUplinkAddress().empty())
+        properties.emplace_back("inputstream.adaptive.local_address",
+                                settings->GetUplinkAddress());
 
       // If no media headers are explicitly set for inputstream.adaptive,
       // strip the headers from streamURL and put it to media headers property
