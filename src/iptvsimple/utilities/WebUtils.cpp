@@ -171,9 +171,8 @@ bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool 
 
   if (!uplinkSpec.empty() && IsHttpUrl(strURL))
   {
-    const std::string address = ResolveLocalAddress(uplinkSpec);
-    if (!address.empty())
-      fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "local_addr", address);
+    const auto option = UplinkOption(uplinkSpec);
+    fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, option.first, option.second);
   }
 
   if (!fileHandle.CURLOpen(ADDON_READ_NO_CACHE))
@@ -222,8 +221,9 @@ std::string WebUtils::ResolveLocalAddress(const std::string& spec)
 
   if (slash == std::string::npos)
   {
-    in_addr literal = {};
-    if (inet_pton(AF_INET, spec.c_str(), &literal) == 1)
+    in6_addr literal = {};
+    if (inet_pton(AF_INET, spec.c_str(), &literal) == 1 ||
+        inet_pton(AF_INET6, spec.c_str(), &literal) == 1)
       return spec;
   }
   else
@@ -276,14 +276,31 @@ std::string WebUtils::ResolveLocalAddress(const std::string& spec)
 #endif
 }
 
-std::string WebUtils::AddLocalAddressToUrl(const std::string& url, const std::string& spec)
+std::pair<std::string, std::string> WebUtils::UplinkOption(const std::string& spec)
+{
+  const std::string key = spec.substr(0, spec.find(';'));
+
+#if !(defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+  in6_addr literal = {};
+  if (key.find('/') == std::string::npos && inet_pton(AF_INET, key.c_str(), &literal) != 1 &&
+      inet_pton(AF_INET6, key.c_str(), &literal) != 1)
+    return {"local_dev", key};
+#endif
+
+  // no device carries the name of an unavailable uplink, so binding to it fails the request
+  const std::string address = ResolveLocalAddress(key);
+  if (address.empty())
+    return {"local_dev", key};
+
+  return {"local_addr", address};
+}
+
+std::string WebUtils::AddUplinkToUrl(const std::string& url, const std::string& spec)
 {
   if (spec.empty() || !IsHttpUrl(url))
     return url;
 
-  const std::string address = ResolveLocalAddress(spec);
-  if (address.empty())
-    return url;
-
-  return StreamUtils::AddHeaderToStreamUrl(url, "local_addr", address);
+  const auto option = UplinkOption(spec);
+  return StreamUtils::AddHeaderToStreamUrl(url, option.first, option.second);
 }
+

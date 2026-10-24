@@ -34,11 +34,12 @@ bool SplitUrlProtocolOpts(const std::string& streamURL,
       url = streamURL.substr(0, found);
       std::string protocolOptions = streamURL.substr(found + 1, streamURL.length());
 
-      // local_addr is for ffmpeg, not a header: it travels as a property
+      // local_addr and local_dev are for ffmpeg, not headers: the uplink travels as a property
       std::string kept;
       for (const auto& option : kodi::tools::StringUtils::Split(protocolOptions, "&"))
       {
-        if (kodi::tools::StringUtils::StartsWith(option, "local_addr="))
+        if (kodi::tools::StringUtils::StartsWith(option, "local_addr=") ||
+            kodi::tools::StringUtils::StartsWith(option, "local_dev="))
           continue;
         if (!kept.empty())
           kept += "&";

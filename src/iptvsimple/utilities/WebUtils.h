@@ -9,6 +9,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 namespace iptvsimple
 {
@@ -36,7 +37,8 @@ namespace iptvsimple
                         const std::string& uplinkSpec = {});
       static std::map<std::string, std::string> ConvertStringToHeaders(const std::string& input);
       static std::string ResolveLocalAddress(const std::string& spec);
-      static std::string AddLocalAddressToUrl(const std::string& url, const std::string& spec);
+      static std::pair<std::string, std::string> UplinkOption(const std::string& spec);
+      static std::string AddUplinkToUrl(const std::string& url, const std::string& spec);
     };
   } // namespace utilities
 } // namespace iptvsimple

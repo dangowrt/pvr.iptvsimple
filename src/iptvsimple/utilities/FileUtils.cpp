@@ -195,8 +195,8 @@ int FileUtils::GetCachedFileContents(std::shared_ptr<iptvsimple::InstanceSetting
 
   if (needReload)
   {
-    FileUtils::GetFileContents(
-        WebUtils::AddLocalAddressToUrl(filePath, settings->GetUplinkAddress()), contents);
+    FileUtils::GetFileContents(WebUtils::AddUplinkToUrl(filePath, settings->GetUplinkAddress()),
+                               contents);
 
     // write to cache
     if (useCache && contents.length() > 0)
