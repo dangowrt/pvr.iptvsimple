@@ -561,8 +561,8 @@ std::string StreamUtils::WebStreamExtractor(const std::string& webUrl,
       tempUrl = tempUrl.substr(0, pos);
     }
 
-    std::string extractedUrl =
-        WebStreamExtractor::ExtractStreamUrl(tempUrl, webPattern, webHeaders, false);
+    std::string extractedUrl = WebStreamExtractor::ExtractStreamUrl(
+        tempUrl, webPattern, webHeaders, false, WebUtils::UplinkOptions(mediaHeaders));
     Logger::Log(LEVEL_DEBUG,
                 "%s - Extracted URL: '%s', webPattern: '%s', webHeaders: '%s', webUrl: '%s'",
                 __FUNCTION__, extractedUrl.c_str(), webPattern.c_str(), webHeaders.c_str(),

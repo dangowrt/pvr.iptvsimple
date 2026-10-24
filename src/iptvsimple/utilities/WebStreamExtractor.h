@@ -19,7 +19,8 @@ public:
   static std::string ExtractStreamUrl(const std::string& line,
                                       const std::string& webPattern,
                                       const std::string& webHeaders,
-                                      bool isMediaEntry);
+                                      bool isMediaEntry,
+                                      const std::string& uplinkOptions = {});
 
 private:
   static std::string ExtractByPattern(const std::string& content,

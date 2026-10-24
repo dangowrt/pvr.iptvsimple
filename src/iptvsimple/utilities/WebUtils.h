@@ -38,7 +38,9 @@ namespace iptvsimple
       static std::map<std::string, std::string> ConvertStringToHeaders(const std::string& input);
       static std::string ResolveLocalAddress(const std::string& spec);
       static std::pair<std::string, std::string> UplinkOption(const std::string& spec);
+      static bool IsUplinkUrl(const std::string& url);
       static std::string AddUplinkToUrl(const std::string& url, const std::string& spec);
+      static std::string UplinkOptions(const std::string& protocolOptions);
     };
   } // namespace utilities
 } // namespace iptvsimple

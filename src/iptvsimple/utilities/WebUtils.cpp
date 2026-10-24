@@ -295,12 +295,37 @@ std::pair<std::string, std::string> WebUtils::UplinkOption(const std::string& sp
   return {"local_addr", address};
 }
 
+bool WebUtils::IsUplinkUrl(const std::string& url)
+{
+  return IsHttpUrl(url) || StringUtils::StartsWith(url, "udp://") ||
+         StringUtils::StartsWith(url, "rtp://");
+}
+
 std::string WebUtils::AddUplinkToUrl(const std::string& url, const std::string& spec)
 {
-  if (spec.empty() || !IsHttpUrl(url))
+  if (spec.empty() || !IsUplinkUrl(url))
     return url;
 
   const auto option = UplinkOption(spec);
   return StreamUtils::AddHeaderToStreamUrl(url, option.first, option.second);
 }
 
+std::string WebUtils::UplinkOptions(const std::string& protocolOptions)
+{
+  const std::string trimmed =
+      StringUtils::StartsWith(protocolOptions, "|") ? protocolOptions.substr(1) : protocolOptions;
+
+  std::string options;
+  for (const auto& option : StringUtils::Split(trimmed, "&"))
+  {
+    if (!StringUtils::StartsWith(option, "local_addr=") &&
+        !StringUtils::StartsWith(option, "local_dev="))
+      continue;
+
+    if (!options.empty())
+      options += "&";
+    options += option;
+  }
+
+  return options;
+}

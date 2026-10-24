@@ -184,7 +184,7 @@ int FileUtils::GetCachedFileContents(std::shared_ptr<iptvsimple::InstanceSetting
     kodi::vfs::FileStatus statOrig;
 
     kodi::vfs::StatFile(cachedPath, statCached);
-    kodi::vfs::StatFile(filePath, statOrig);
+    kodi::vfs::StatFile(WebUtils::AddUplinkToUrl(filePath, settings->GetUplinkAddress()), statOrig);
 
     needReload = statCached.GetModificationTime() < statOrig.GetModificationTime() || statOrig.GetModificationTime() == 0;
   }

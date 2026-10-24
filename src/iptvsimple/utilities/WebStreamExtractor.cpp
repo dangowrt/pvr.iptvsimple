@@ -5,7 +5,8 @@ using namespace iptvsimple::utilities;
 std::string WebStreamExtractor::ExtractStreamUrl(const std::string& webUrl,
                                                  const std::string& webPattern,
                                                  const std::string& webHeaders,
-                                                 bool isMediaEntry)
+                                                 bool isMediaEntry,
+                                                 const std::string& uplinkOptions)
 {
   try
   {
@@ -16,7 +17,7 @@ std::string WebStreamExtractor::ExtractStreamUrl(const std::string& webUrl,
     }
 
     std::string content;
-    CUrl curl{webUrl};
+    CUrl curl{uplinkOptions.empty() ? webUrl : webUrl + "|" + uplinkOptions};
     if (!webHeaders.empty())
     {
       std::map<std::string, std::string> headersMap = WebUtils::ConvertStringToHeaders(webHeaders);

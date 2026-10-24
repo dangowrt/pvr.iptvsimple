@@ -198,8 +198,6 @@ void Channel::SetStreamURL(const std::string& url)
 
     TryToAddPropertyAsHeader("http-user-agent", "user-agent");
     TryToAddPropertyAsHeader("http-referrer", "referer"); // spelling differences are correct
-
-    m_streamURL = WebUtils::AddUplinkToUrl(m_streamURL, m_settings->GetUplinkAddress());
   }
 
   if (m_settings->TransformMulticastStreamUrls() &&
@@ -209,6 +207,10 @@ void Channel::SetStreamURL(const std::string& url)
 
     m_streamURL = "http://" + m_settings->GetUdpxyHost() + ":" + std::to_string(m_settings->GetUdpxyPort()) + typePath + url.substr(UDP_MULTICAST_PREFIX.length());
     Logger::Log(LEVEL_DEBUG, "%s - Transformed multicast stream URL to local relay url: %s", __FUNCTION__, m_streamURL.c_str());
+  }
+  else
+  {
+    m_streamURL = WebUtils::AddUplinkToUrl(m_streamURL, m_settings->GetUplinkAddress());
   }
 
   if (!m_settings->GetDefaultInputstream().empty() && GetProperty(PVR_STREAM_PROPERTY_INPUTSTREAM).empty())
